@@ -12,15 +12,8 @@ import Foundation
 class ListViewController: UIViewController {
     
     // MARK: Properties
-    // Students Array stored at central App Delegate Location
-    var students: [StudentInformation]{
-        get {
-            return (UIApplication.sharedApplication().delegate as! AppDelegate).students
-        }
-        set {
-            (UIApplication.sharedApplication().delegate as! AppDelegate).students = newValue
-        }
-    }
+    // Students Array stored in own model class *FIX after 1st Udacity Review*
+    let studentData = StudentData.sharedInstance
     
     @IBOutlet var studentsTableView: UITableView!
     
@@ -48,7 +41,7 @@ class ListViewController: UIViewController {
     private func loadStudentLocations() {
         OTMClient.sharedInstance().getStudentLocations() { (students, errorString ) in
             if let students = students{
-                self.students = students
+                self.studentData.students = students
                 performUIUpdatesOnMain{
                     self.studentsTableView.reloadData()
                 }
@@ -83,7 +76,7 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
         
         /* Get cell type */
         let cellReuseIdentifier = "StudentInformationCell"
-        let student = students[indexPath.row]
+        let student = studentData.students[indexPath.row]
         let cell = tableView.dequeueReusableCellWithIdentifier(cellReuseIdentifier) as UITableViewCell!
         
         /* Set cell defaults */
@@ -93,11 +86,11 @@ extension ListViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return students.count
+        return studentData.students.count
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let student = students[indexPath.row]
+        let student = studentData.students[indexPath.row]
         
         func alert(error: String){
             let alert = UIAlertController(title: "Open Safari failed", message: error, preferredStyle: .Alert)

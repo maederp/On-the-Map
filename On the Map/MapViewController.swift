@@ -13,15 +13,8 @@ import MapKit
 class MapViewController: UIViewController {
     
     // MARK: Properties 
-    // Students Array stored at central App Delegate Location
-    var students: [StudentInformation]{
-        get {
-            return (UIApplication.sharedApplication().delegate as! AppDelegate).students
-        }
-        set {
-            (UIApplication.sharedApplication().delegate as! AppDelegate).students = newValue
-        }
-    }
+    // Students Array stored in own model class *FIX after 1st Udacity Review*
+    let studentData = StudentData.sharedInstance
     
     @IBOutlet weak var mapView: MKMapView!
     
@@ -39,17 +32,22 @@ class MapViewController: UIViewController {
         let redoBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: #selector(self.reload))
         
         parentViewController!.navigationItem.setRightBarButtonItems([redoBarButtonItem, pinBarButtonItem], animated: true)
+        
+        
     }
     
     override func viewWillAppear(animated: Bool) {
         super.viewWillAppear(animated)
         
-        //Clean Map from previous annotations
-        mapView.removeAnnotations(self.mapView.annotations)
-        
+        self.mapView.delegate = self
+        performUIUpdatesOnMain{
+            //Clean Map from previous annotations
+            if self.mapView.annotations.count > 0{
+                self.mapView.removeAnnotations(self.mapView.annotations)
+            }
+        }
         // MARK: Load Student Information Data (max 100)
         loadStudentLocations()
-        mapView.delegate = self
 
     }
     
@@ -59,8 +57,8 @@ class MapViewController: UIViewController {
         // MARK: set region for Map (Default: Bern Bundesplatz Switzerland
         var center : CLLocationCoordinate2D = CLLocationCoordinate2D(latitude: 46.9470, longitude: 7.4439)
         
-        if let longitude = students.first?.longitude,
-            let latitude = students.first?.latitude {
+        if let longitude = studentData.students.first?.longitude,
+            let latitude = studentData.students.first?.latitude {
             center = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         }
         
@@ -78,7 +76,7 @@ class MapViewController: UIViewController {
         OTMClient.sharedInstance().getStudentLocations() { (students, errorString ) in
             performUIUpdatesOnMain{
                 if let students = students{
-                    self.students = students
+                    self.studentData.students = students
                     self.setStudentPins()
                 }else{
                     let alert = UIAlertController(title: "Loading Student Information", message: errorString, preferredStyle: .Alert)
@@ -93,7 +91,7 @@ class MapViewController: UIViewController {
     
     private func setStudentPins() {
 
-        for student in students{
+        for student in studentData.students{
             let pin = MKPointAnnotation()
             pin.coordinate = CLLocationCoordinate2D(latitude: Double(student.latitude), longitude: Double(student.longitude))
             pin.title = "\(student.firstName) \(student.lastName)"

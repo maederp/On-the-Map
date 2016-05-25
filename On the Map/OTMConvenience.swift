@@ -23,7 +23,6 @@ extension OTMClient {
         getSessionID(userName, password: password) { (success, sessionID, errorString) in
         
             if success {
-                print(self.sessionID)
                 completionHandlerForAuth(success: success, errorString: errorString)
             } else {
                 completionHandlerForAuth(success: success, errorString: errorString)
@@ -36,7 +35,6 @@ extension OTMClient {
             if error != nil{
                 print("logout session not successful")
             } else{
-                print("success")
                 print(result)
             }
         }
@@ -73,7 +71,7 @@ extension OTMClient {
                     if let sessionID = session[JSONResponseKeys.SessionID] as? String,
                     let uniqueKeyString = account[JSONResponseKeys.AccountKey] as? String
                     {
-                        self.user.uniquekey = uniqueKeyString
+                        self.userData.user.uniquekey = uniqueKeyString
                         self.sessionID = sessionID
                         completionHandlerForSession(success: true, sessionID: sessionID, errorString: nil)
                     }else{
@@ -98,11 +96,17 @@ extension OTMClient {
                 {
                     if let firstName = user["first_name"] as? String,
                     let lastName = user["last_name"] as? String{
-                        print("User: \(firstName) \(lastName)")
-                        self.user.firstName = firstName
-                        self.user.lastName = lastName
-                        self.user.mediaURL = "http://www.google.com"
-                        completionHandlerForUserInfo(success: true, user: self.user, errorString: nil)
+                        
+                        self.userData.user.firstName = firstName
+                        self.userData.user.lastName = lastName
+                        
+                        if let mediaURL = user["website_url"] as? String{
+                            self.userData.user.mediaURL = mediaURL
+                        }else{
+                            self.userData.user.mediaURL = "http://www.google.com"
+                        }
+                        
+                        completionHandlerForUserInfo(success: true, user: self.userData.user, errorString: nil)
                     }else {
                         print("Could not find \("first_name"), \("last_name") or \("website_url") in \(user)")
                         completionHandlerForUserInfo(success: false, user: nil, errorString: "UserData retrieval failed")
@@ -135,10 +139,7 @@ extension OTMClient {
     
     func setStudentLocationAndUrl(completionHandlerForStudentLocations: (success: Bool, errorString: String?) -> Void){
         
-        let jsonBody = "{\"uniqueKey\": \"\(self.user.uniquekey)\", \"firstName\": \"\(self.user.firstName)\", \"lastName\": \"\(self.user.lastName)\", \"mapString\": \"\(self.user.mapString)\", \"mediaURL\": \"\(self.user.mediaURL)\",\"latitude\": \(self.user.latitude), \"longitude\": \(self.user.longitude)}"
-        
-        print("jsonbody:")
-        print(jsonBody)
+        let jsonBody = "{\"uniqueKey\": \"\(self.userData.user.uniquekey)\", \"firstName\": \"\(self.userData.user.firstName)\", \"lastName\": \"\(self.userData.user.lastName)\", \"mapString\": \"\(self.userData.user.mapString)\", \"mediaURL\": \"\(self.userData.user.mediaURL)\",\"latitude\": \(self.userData.user.latitude), \"longitude\": \(self.userData.user.longitude)}"
         
         taskForParsePOSTMethod(jsonBody) { (results, error) in
             if error == nil {

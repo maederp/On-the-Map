@@ -64,8 +64,14 @@ class AddLocationViewController: UIViewController {
                         self.activityView.stopAnimating()
                     }
                 } else {
-                    print(error)
                     self.activityView.stopAnimating()
+                    
+                    // Display alert if Geocoding fails
+                    let alert = UIAlertController(title: "Geocoding failed", message: "Please retry: \(error.debugDescription)", preferredStyle: .Alert)
+                    let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil )
+                    
+                    alert.addAction(defaultAction)
+                    self.presentViewController(alert, animated: true, completion: nil)
                 }
             }
         })

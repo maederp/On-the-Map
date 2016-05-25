@@ -19,14 +19,10 @@ class AddURLViewController: UIViewController {
     var studentLocation = CLLocation()
     var geocodeLocationSeachString = String()
     
-    var user : StudentInformation {
-        get{
-            return (UIApplication.sharedApplication().delegate as! AppDelegate).user
-        }
-        set{
-            (UIApplication.sharedApplication().delegate as! AppDelegate).user = newValue
-        }
-    }
+    // Students Array stored in own model class *FIX after 1st Udacity Review*
+    let studentData = StudentData.sharedInstance
+
+    let userData = UserData.sharedInstance
     
     // MARK: View Lifecycle
     override func viewDidLoad() {
@@ -46,8 +42,8 @@ class AddURLViewController: UIViewController {
         
         let pin = MKPointAnnotation()
         pin.coordinate = studentLocation.coordinate
-        pin.title = "\(user.firstName) \(user.lastName)"
-        pin.subtitle = "\(user.mediaURL)"
+        pin.title = "\(userData.user.firstName) \(userData.user.lastName)"
+        pin.subtitle = "\(userData.user.mediaURL)"
         
         studentLocationMapView.addAnnotation(pin)
 
@@ -66,17 +62,20 @@ class AddURLViewController: UIViewController {
     @IBAction func submitButtonPressed(sender: UIButton) {
         
         if let text = urlTextField.text {
-            user.mediaURL = text
+            userData.user.mediaURL = text
         }
-        user.latitude = studentLocation.coordinate.latitude
-        user.longitude = studentLocation.coordinate.longitude
-        user.mapString = geocodeLocationSeachString
+        userData.user.latitude = studentLocation.coordinate.latitude
+        userData.user.longitude = studentLocation.coordinate.longitude
+        userData.user.mapString = geocodeLocationSeachString
         
         OTMClient.sharedInstance().setStudentLocationAndUrl() { (success, error) in
             if success {
                 performUIUpdatesOnMain{
+                    // Add dismissViewController based on review suggestion
                     let alert = UIAlertController(title: "Successful update !", message: error, preferredStyle: .Alert)
-                    let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil )
+                    let defaultAction = UIAlertAction(title: "OK", style: .Default) {(_) in
+                        self.dismissView()
+                    }
                     
                     alert.addAction(defaultAction)
                     self.presentViewController(alert, animated: true, completion: nil)
@@ -93,9 +92,9 @@ class AddURLViewController: UIViewController {
         }
     }
     
-    func backToRoot() {
+    func dismissView(){
         performUIUpdatesOnMain{
-            self.navigationController?.popToRootViewControllerAnimated(true)
+            self.dismissViewControllerAnimated(true, completion: nil)
         }
     }
 }

@@ -14,14 +14,7 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var loginPasswordTextField: UITextField!
     @IBOutlet weak var debugTextLabel: UILabel!
     
-    var user : StudentInformation {
-        get{
-            return (UIApplication.sharedApplication().delegate as! AppDelegate).user
-        }
-        set{
-            (UIApplication.sharedApplication().delegate as! AppDelegate).user = newValue
-        }
-    }
+    let userData = UserData.sharedInstance
     
     // MARK: Lifecycle
     override func viewDidLoad() {
@@ -45,7 +38,7 @@ class LoginViewController: UIViewController {
         OTMClient.sharedInstance().authenticateWithCredentials(userName, password: password) { (success,  errorString) in
             performUIUpdatesOnMain {
                 if success {
-                    OTMClient.sharedInstance().getUserInformation(self.user.uniquekey) { (success, userInfo, errorString) in
+                    OTMClient.sharedInstance().getUserInformation(self.userData.user.uniquekey) { (success, userInfo, errorString) in
                         if errorString != nil{
                             print(errorString)
                         }

@@ -205,7 +205,7 @@
                     </view>
                     <tabBarItem key="tabBarItem" title="Map" image="map" id="kLJ-wc-B1z"/>
                     <connections>
-                        <outlet property="mapView" destination="vlK-nu-1To" id="49A-CZ-ywt"/>
+                        <outlet property="mapView" destination="vlK-nu-1To" id="uno-Du-X9L"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BN1-xL-NgV" userLabel="First Responder" sceneMemberID="firstResponder"/>

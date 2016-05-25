@@ -24,19 +24,8 @@ class OTMClient : NSObject {
         }
     }
 
-    var user: StudentInformation{
-        get{
-            return (UIApplication.sharedApplication().delegate as! AppDelegate).user
-        }
-        set{
-            (UIApplication.sharedApplication().delegate as! AppDelegate).user = newValue
-        }
-    }
-
-    // MARK: Initializers
-    override init(){
-        super.init()
-    }
+    let userData = UserData.sharedInstance
+    
     
     // MARK: PARSE Requests
     // MARK: PARSE GET
@@ -251,7 +240,6 @@ class OTMClient : NSObject {
             
             completionHandlerForDELETE(result: newData, error: error)
             
-            print(NSString(data: newData, encoding: NSUTF8StringEncoding))
         }
         task.resume()
     }
